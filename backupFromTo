@@ -1,0 +1,104 @@
+#!/bin/bash
+
+
+
+
+. $HOME/Skripte/functions
+
+
+echo "###########################"
+echo "     Use bash"
+echo "###########################"
+
+
+
+
+frompath=""
+topath=""
+sizeonly=false
+
+while getopts "sf:t:h" optname
+do
+  case "$optname" in
+    "s")
+      echo "Option $optname is $OPTARG"
+      sizeonly=true
+      ;;
+    "f")
+      echo "Option $optname is $OPTARG"
+      frompath=$OPTARG
+      ;;
+    "t")
+      echo "Option $optname is $OPTARG"
+      topath=$OPTARG
+      ;;
+    "h")
+      echo ""
+      echo " Help is always welcome"
+      echo ""
+      echo ""
+      echo " -f  Frompath  (is needed!!!)"
+      echo " -t  Topath  (default is $out)"
+      echo " -s  Compare sizes of files only (not timestamps)"
+      echo "   Example:"
+      echo "             ~/Skripte/backupFromTo  -f /frompath/ -t /topath/"
+      echo "   Run it without sh!!!"
+      
+      exit
+      ;;
+  esac
+done
+
+ 
+ 
+
+if [ "$frompath" = "" ] 
+then
+  echo "No frompath specified"
+  exit;
+fi
+
+if [ "$topath" = "" ] 
+then
+  echo "No topath specified"
+  exit;
+fi
+
+
+
+Ask "Do you want to overwride the destination $topath" "yes" "no" 
+if [ "$result" == "no" ]; then
+  exit;
+fi
+
+
+
+
+
+if [ $sizeonly = true ] 
+then
+	echo "Size file comparison  only"
+		
+	Ask "Do a dry run?" "yes" "no" 
+	if [ "$result" == "yes" ]; then
+		rsync  --dry-run --size-only   --protect-args -avhz     --delete --delete-after  --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private   --exclude=.ecryptfs    "$frompath" "$topath"
+	else
+		rsync   --size-only   --protect-args -avhz     --delete --delete-after   --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs      "$frompath" "$topath"
+	fi
+	
+	
+else
+	Ask "Do a dry run?" "yes" "no" 
+	if [ "$result" == "yes" ]; then
+		rsync    --protect-args -avhz     --delete --delete-after  --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private   --exclude=.ecryptfs      "$frompath" "$topath"
+	else
+		rsync    --protect-args -avhz     --delete --delete-after  --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private   --exclude=.ecryptfs     "$frompath" "$topath"	
+	fi
+	
+
+fi
+
+
+
+
+

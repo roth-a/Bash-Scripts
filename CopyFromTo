@@ -1,0 +1,79 @@
+#!/bin/bash
+
+
+
+. $HOME/Skripte/functions
+
+
+echo "###########################"
+echo "     Use bash"
+echo "###########################"
+
+
+out=/tmp/output/
+mkdir $out
+
+v=0
+l=0 
+while getopts "f:t:b:hl:" optname
+do
+  case "$optname" in
+    "f")
+      echo "Option $optname is $OPTARG"
+      frompath=$OPTARG
+      ;;
+    "t")
+      echo "Option $optname is $OPTARG"
+      topath=$OPTARG
+      ;;
+    "v")
+      echo "Option $optname is $OPTARG"
+      v=$OPTARG
+      ;;
+    "l")
+      echo "Option $optname is $OPTARG"
+      l=$OPTARG
+      ;;
+    "h")
+      echo ""
+      echo " Help is always welcome"
+      echo ""
+      echo ""
+      echo " -l  Limitbandwidth (default $l)"
+      echo " -f  Frompath  (is needed!!!)"
+      echo " -t  Topath  (default is /tmp/output)"
+      echo "   Example:"
+      echo "             ~/Skripte/CopyRandomFromTo -n 100 -e avi -f /frompath/ -t /topath/"
+      echo "   Run it without sh!!!"
+      
+      exit
+      ;;
+  esac
+done
+
+ 
+ 
+
+if [ "$frompath" = "" ] 
+then
+  echo "No frompath specified"
+  exit;
+fi
+
+if [ "$topath" = "" ] 
+then
+  topath="/tmp/output"
+  mkdir $topath
+fi
+
+
+
+fsize=$(calc "$(filesize "$frompath")/1024/1024")
+echo "filesize= $(niceformat "$fsize") MB"
+echo "time= $(niceformat "$(calc "$fsize/$l*1024")") s =  $(niceformat "$(calc "$fsize/$l*1024/60")") min"
+
+copyrsyncfile "$frompath" "$topath" "$l"
+
+
+
+

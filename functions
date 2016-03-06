@@ -1,0 +1,145 @@
+#!/bin/bash
+
+
+function Ask()
+{
+  #0 = description
+  #1= variables
+  local args=("$@")
+  echo "##############################"
+  echo ${args[0]}
+  unset args[0]      # deltes description value
+  echo "---------- Optionen ---------- [1] is default"
+  #echo ${#variables[*]}  # anzahl der elemente
+  for index in ${!args[*]}
+  do
+      printf "[$index] = ${args[$index]}\n"
+  done
+
+  read inputkey
+
+  # test if it is numeric
+  if [[ "$inputkey" != +([0-9]) ]]
+  then
+   #echo "is not an Integer"
+    inputkey=1
+  fi
+  result=${args[$inputkey]}
+
+  echo "Option is [$inputkey] = $result"
+}
+
+
+
+
+
+function rmstring()
+{	
+  echo $1 | sed -e "s/$2//g"
+}
+
+
+function rmline()
+{	
+  echo $1 | sed -e "/$2/d"
+}
+
+
+
+
+
+
+function copyfile()
+{	
+  if [ -f "$1" ]; then  
+    cp -u "$1" "$2" 
+    echo "$1 copied"
+  else
+    echo "$1 is no existing file"
+  fi
+}
+
+
+function filesize()
+{
+  echo $(stat -c%s "$1")
+}
+
+
+function calc()
+{
+  echo "$*"| bc -l
+}
+
+
+
+function niceformat()
+{
+  echo "$*"| xargs printf "%1.3f"
+}
+
+
+
+function writecaption()   # $1 is the text.  $2 is the character (like +)   $3 is the txtcolor
+{
+  local c="#"
+  if [[ "$2" != "" ]] ; then
+    c="$2"
+  fi
+
+  printf "$3"
+  printf "%$(tput cols)s\n"|tr ' ' "$c"
+  if [[ $1 != "" ]] ; then
+    local w="      $1      "
+    local lw=${#w}
+    printf "%$(( ($(tput cols)-lw) /2))s"|tr ' ' "$c"
+    printf "$w"
+    printf "%$(( ($(tput cols)-lw) /2))s\n"|tr ' ' "$c"
+
+    printf "%$(tput cols)s\n"|tr ' ' "$c"
+  fi
+  printf "$(tput sgr0)" # text reset
+}
+
+
+
+
+
+function copyrsyncfile()
+{	
+#1= from
+#2= to
+#3= limit KB/s
+local l=$3
+  if [[ "$l" = "" ]]; then  
+    l=0
+  fi
+
+local frompath="$1"
+local topath="$2"
+
+echo "$frompath  --->  $topath"
+
+rsync --recursive --human-readable --progress  --ignore-existing --protect-args -v  --compress --bwlimit="$l" "$frompath" "$topath"
+}
+
+
+ 
+
+# Text color variables
+txtund=$(tput sgr 0 1)    # Underline
+txtbld=$(tput bold)       # Bold
+txtred=$(tput setaf 1)    # Red
+txtgrn=$(tput setaf 2)    # Green
+txtylw=$(tput setaf 3)    # Yellow
+txtblu=$(tput setaf 4)    # Blue
+txtpur=$(tput setaf 5)    # Purple
+txtcyn=$(tput setaf 6)    # Cyan
+txtwht=$(tput setaf 7)    # White
+txtrst=$(tput sgr0)       # Text reset
+
+colorarray=($txtred $txtgrn $txtylw $txtblu $txtpur $txtcyn $txtwht $txtrst)
+#rc=${colorarray[$((RANDOM%(${#colorarray[@]})))]}   # random color
+#http://www.thegeekstuff.com/2010/06/bash-array-tutorial/
+
+
