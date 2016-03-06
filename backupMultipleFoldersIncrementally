@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+. $HOME/Skripte/functions
+
+
+backupfolder="/backupfolder/"
+
+cd ~ 
+backupfolderlist=( "folder 1"  "folder 2"  )
+
+
+Ask "Is this the first backup?"  "no" "yes" 
+if [ "$result" == "no" ]; then  
+	lastbackupfoldershort=`ls -1 --sort=version  "$backupfolder"| tail -1`
+	echo "last backup folder is $lastbackupfoldershort"
+else
+	exit;
+fi
+
+
+thisbackupfolder="$backupfolder`date -I`"
+#mkdir "$thisbackupfolder"
+
+for folder in "${backupfolderlist[@]}"; do
+	bash ~/Skripte/incrementalBackupFromTo -s -f "$folder" -t "$thisbackupfolder/" -l "../$lastbackupfoldershort" 
+
+	echo "----------------------------------------------------------------------"
+	echo "$folder done"
+done
+
+
+  
