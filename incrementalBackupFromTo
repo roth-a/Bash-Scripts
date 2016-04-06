@@ -93,9 +93,9 @@ then
         if [ "$linkdest" = "" ] ;        then
             echo "No linkpath specified,  Creating a full backup"
     
-            rsync   --size-only   --protect-args -avhz     --delete   --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private   --exclude=.ecryptfs     "$frompath" "$topath"
+            rsync   --size-only   --protect-args -avhz      --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private   --exclude=.ecryptfs     "$frompath" "$topath"
         else
-            rsync   --size-only   --protect-args -avhz     --delete   --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs    --link-dest="$linkdest"  "$frompath" "$topath"        
+            rsync   --size-only   --protect-args -avhz      --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs    --link-dest="$linkdest"  "$frompath" "$topath"        
         fi
 
 else
@@ -103,9 +103,9 @@ else
         if [ "$linkdest" = "" ] ;        then
             echo "No linkpath specified,  Creating a full backup"
     
-            rsync   --protect-args -avhz     --delete   --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs      "$frompath" "$topath"
+            rsync   --protect-args -avhz      --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs      "$frompath" "$topath"
         else
-            rsync   --protect-args -avhz     --delete   --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs    --link-dest="$linkdest"  "$frompath" "$topath"        
+            rsync   --protect-args -avhz      --exclude=.thumbnails   --exclude=.cache --exclude=.local/share/Trash/ --exclude=.Private  --exclude=.ecryptfs    --link-dest="$linkdest"  "$frompath" "$topath"        
         fi
 
 
