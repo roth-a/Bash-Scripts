@@ -4,10 +4,13 @@
 . $HOME/Skripte/functions
 
 
+# ========================================
+# Please edit the lines below
 backupfolder="/backupfolder/"
+backupfolderlist=( "folder 1"  "folder 2"  )
+# ========================================
 
 cd ~ 
-backupfolderlist=( "folder 1"  "folder 2"  )
 
 
 Ask "Is this the first backup?"  "no" "yes" 
@@ -15,7 +18,7 @@ if [ "$result" == "no" ]; then
 	lastbackupfoldershort=`ls -1 --sort=version  "$backupfolder"| tail -1`
 	echo "last backup folder is $lastbackupfoldershort"
 else
-	echo "Please create manually an empty date folder in the backup dir. Then start the backup with this empty folder as a reference."
+	echo "Please create manually an empty date folder in the backup dirrectory $backupfolder. Then start the script again with this empty folder as a reference."
 	exit;
 fi
 

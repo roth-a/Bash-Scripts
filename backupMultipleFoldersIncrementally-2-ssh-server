@@ -47,6 +47,7 @@ Ask "Is this the first backup? I found: $lastbackupfoldershort as the last backu
 if [ "$result" == "yes" ]; then  
 	echo "great. Continue"
 else
+	echo "Please create manually an empty date folder in the backup dirrectory $serverbackupdir. Then start the script again with this empty folder as a reference."
 	exit;
 fi
 
