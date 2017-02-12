@@ -16,15 +16,20 @@ function convertfile
 {
   echo "Output to $2"
   if [ "$simulate" != "y" ] ;then
-      nice -n 19 ffmpeg -v $verbosity  -y -i "$1"  -vcodec libx264 -crf $qualityfactor -vf "transpose=dir=$rot" -vf $res    -acodec copy "$2"   </dev/null       
+      nice -n 19 ffmpeg -v $verbosity  -y -i "$1"  -vcodec libx264 -crf $qualityfactor -vf "transpose=dir=$rot" -vf $res    -acodec $acodec -ab 192k  "$2"   </dev/null 
+      
+#      nice -n 19 ffmpeg -v $verbosity  -y -i "$1"  -vcodec libx264 -crf $qualityfactor -vf "transpose=dir=$rot" -vf $res    -acodec aac -strict experimental -ab 128k "$2"   </dev/null 
+      
+#       nice -n 19 ffmpeg -v 2 -y -i "$1" -vf "transpose=dir=$rot" -vf $res   -b "$b"k -acodec aac -strict experimental -ab 128k "$2" </dev/null 
   else 
- 	echo "nice -n 19 ffmpeg -v $verbosity  -y -i $1  -vcodec libx264 -crf $qualityfactor -vf transpose=dir=$rot -vf $res    -acodec aac -strict experimental -ab 128k $2   </dev/null "
+ 	echo "nice -n 19 ffmpeg -v $verbosity  -y -i $1  -vcodec libx264 -crf $qualityfactor -vf transpose=dir=$rot -vf $res    -acodec $acodec -strict experimental -ab 128k $2   </dev/null "
   fi
 }
 
 
 from=""
 ending="mp4"
+ending_target="mp4"
 count=1000
 b=2000
 # frames=20
@@ -33,15 +38,15 @@ b=2000
 # res=1280x738
 res="scale=-1:-1"   # reduce noise with "dctdnoiz=4.5"
 rot=-1
-qualityfactor=24 
-verbosity=quiet
+qualityfactor=20
+verbosity=fatal
 post="red"
 out=""
-
+acodec=copy
 mydate=`date "+%Y-%m-%d-%H-%M-%S"`
 
 
-while getopts "f:t:e:q:f:r:p:s:m:v:h" optname
+while getopts "f:t:e:E:a:q:f:r:p:s:m:v:h" optname
 do
   case "$optname" in
     "f")
@@ -52,13 +57,25 @@ do
       echo "Option $optname is $OPTARG"
       out=$OPTARG
       ;;
+#     "n")
+#       echo "Option $optname is $OPTARG"
+#       count=$OPTARG
+#       ;;
     "e")
       echo "Option $optname is $OPTARG"
       ending=$OPTARG
       ;;
+    "E")
+      echo "Option $optname is $OPTARG"
+      ending_target=$OPTARG
+      ;;
     "q")
       echo "Option $optname is $OPTARG"
       qualityfactor=$OPTARG
+      ;;
+    "a")
+      echo "Option $optname is $OPTARG"
+      acodec=$OPTARG
       ;;
 #     "b")
 #       echo "Option $optname is $OPTARG"
@@ -95,13 +112,16 @@ do
       echo ""
       echo " -f  From  IS REQUIRED	Please with a / at the end"
       echo " -t  output folder		Please with a / at the end	(default is the source directory $out)"
-      echo " -e  Extension		(default is $ending)"
+#       echo " -n  Count files		(default is $count)"
+      echo " -e  Extension			(default is $ending)"
+      echo " -T  Target Extension		(default is $ending_target)"
+      echo " -a  Audio codec		(default is $acodec)"
       echo " -q  qualityfactor		(default is $qualityfactor, 18...24 lower is higher quality)"
 #       echo " -b  bitrate		(default is $b)"
       echo " -m  Transformation		(default is no transformation $rot) Available values are clock, cclock, clock_flip, cclock_flip"
 #       echo " -f Frames per sencond	(default = $frames)"
       echo " -r  resolution  		(default is \"$res\")"
-      echo " -p  Post Output Name	(default is $post)"
+      echo " -p  Post Output Name		(default is $post)"
       echo " -v  Verbosioty  		(default is $verbosity)"
       echo " -s  Simulate"
       echo " The Input Path just give as the last argument"
@@ -116,7 +136,7 @@ done
 
 #cd "${!#}"
 
-mkdir "$out"
+mkdir -p "$out"
 
 
 if [ "$from" = "" ] ;then
@@ -131,6 +151,7 @@ Ask "Create screenshots comparison of the original and the converted file?" "no"
 if [ "$result" == "yes" ]; then  
 bool_screen=true
 fi
+
 
 
 
@@ -154,19 +175,18 @@ if [ -d "$from" ]; then
       echo ""
       echo ""
       echo "=============================="
-      echo "File ""$file"
+      #echo "File ""$file"
       name=`basename "$file"`
       echo "Filename ""$name"
 
-      
-      outname="$out$file-$post-$mydate.mp4"
+      outname="$out$file-$post-$mydate.$ending_target"
       
       
       # replace the ./ in the outname
 	outname=${outname/.\//}      
 
       # create necessary folders
-      mkdir $(dirname "${outname}")
+      mkdir -p "$(dirname "${outname}")"
 	
 	
       convertfile "$file" "$outname"
@@ -176,10 +196,10 @@ if [ -d "$from" ]; then
       sizeout=$(wc -c <"$outname")
       comparison=$(echo "$sizeout/$sizeorg" | bc -l)
 	if (( $(echo "$comparison >= 1" | bc -l) )); then
-		echo "! Attention. Converted video is LARGER by $comparison as the original!"
-		echo "! Attention. Converted video is LARGER by $comparison as the original!" >> "$mydate.log"
+		echo "#! Attention. Converted video is LARGER by $comparison as the original!"
+		echo "#! Attention. Converted video is LARGER by $comparison as the original!" >> "$mydate.log"
 	else
-		echo "Reduced size to $comparison of original size"
+		echo "#Reduced size to $comparison of original size"
 	fi
       
       #echo $bool_screen
@@ -211,7 +231,7 @@ else
 
       #name=`basename "$from"`
       #DIR=$(dirname "${from}")
-      outname="$out$from-$post-$mydate.mp4"
+      outname="$out$from-$post-$mydate.$ending_target"
 
       convertfile "$from" "$outname"
 
