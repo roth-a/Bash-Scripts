@@ -154,6 +154,7 @@ fi
 
 
 
+ifile=0
 
 
 if [ -d "$from" ]; then
@@ -169,12 +170,14 @@ if [ -d "$from" ]; then
     # if you don't wnat if randomly just remove |sort -R
     find .  -name \*.$ending | sort | while read file; do
 #     find .  -name \*.$ending |sort -R |tail -n $count |while read file; do
-
+	ifile=$(echo "$ifile +1" | bc -l)
+	ipercent=$(echo "scale=2; $ifile/$countfiles*100/1" | bc -l)
       echo ""
       echo ""
       echo ""
       echo ""
-      echo "=============================="
+      echo "====================================================================================================="
+      echo "==  File $ifile / $countfiles  =  $ipercent %   ======="
       #echo "File ""$file"
       name=`basename "$file"`
       echo "Filename ""$name"
@@ -194,7 +197,7 @@ if [ -d "$from" ]; then
       
       sizeorg=$(wc -c <"$file")
       sizeout=$(wc -c <"$outname")
-      comparison=$(echo "$sizeout/$sizeorg" | bc -l)
+      comparison=$(echo "scale=2; $sizeout/$sizeorg/1" | bc -l)
 	if (( $(echo "$comparison >= 1" | bc -l) )); then
 		echo "#! Attention. Converted video is LARGER by $comparison as the original!"
 		echo "#! Attention. Converted video is LARGER by $comparison as the original!" >> "$mydate.log"
@@ -208,7 +211,7 @@ if [ -d "$from" ]; then
 		ffmpeg  -v $verbosity  -ss 00:00:20 -i "$outname" -vframes 1 -q:v 2 "$outname-screenshot.jpg" </dev/null 
 	fi
       
-      echo "trash $file   ### reduced to $comparison > $outname" >> "$mydate.log"
+      echo "trash \"$file\"   ### reduced to $comparison > $outname" >> "$mydate.log"
     done 
     
 	echo "============================================================================================================================="
