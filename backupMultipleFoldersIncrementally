@@ -4,7 +4,8 @@
 # Requirements
 # sudo apt install sshfs
 
-. functions
+scriptdir="$(dirname "$0")"
+. "$scriptdir/functions"
 
 
 

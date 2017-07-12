@@ -3,7 +3,8 @@
 
 
 
-. functions
+scriptdir="$(dirname "$0")"
+. "$scriptdir/functions"
 
 
 echo "###########################"
