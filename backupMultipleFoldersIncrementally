@@ -1,37 +1,131 @@
 #!/bin/bash
 
 
-. $HOME/Skripte/functions
+# Requirements
+# sudo apt install sshfs
+
+. functions
 
 
-# ========================================
-# Please edit the lines below
-backupfolder="/backupfolder/"
-backupfolderlist=( "folder 1"  "folder 2"  )
-# ========================================
+
+mydate=`date -I`
+
+
+
+
+
+Ask "Source?"  "This computer" "SSH" 
+if [ "$result" == "This computer"  ]; then  
+	# ----  edit here -------------------------------------------------
+	backupfolderlist=( "Documents"  "Pictures" )
+	mountSrc=""
+	backupfolder00="backintime/"
+	# -----------------------------------------------------------------
+fi
+if [ "$result" == "SSH"  ]; then  
+	# ----  edit here -------------------------------------------------
+	backupfolderlist=( "Documents"  "Pictures" )
+	srcsshusername="smith"
+	srcsship="123.456.789.012"     
+	# -----------------------------------------------------------------
+
+	backupfolder00="backintime$srcsshusername/"
+
+	echo "----------------------------------------------------------------------------------------------"
+	mountSrc="/tmp/mountSrc$mydate/"
+	mkdir -p "$mountSrc"
+	sshfs -C $srcsshusername@$srcsship: "$mountSrc"	
+
+
+	tput setaf 3    # Yellow
+	ls "$mountSrc"
+	tput sgr0       # Text reset
+	Ask "Mounted correctly?"  "yes" "no" 
+	if [ "$result" == "no" ]; then  
+		exit;
+	fi
+fi
+
+
+
+
+
+
+
+
+Ask "Backup Destination?"  "SSH" "External Harddrive" 
+if [ "$result" == "SSH"  ]; then  
+	# ----  edit here -------------------------------------------------
+	destsshusername="smith"
+	destsship="123.456.789.012"     
+	backupfolder0="Backup/$backupfolder00"
+	# -----------------------------------------------------------------
+	
+	mountDest="/tmp/mount$mydate"
+	backupfolderMount="$mountDest/$backupfolder0"
+	backupfolder="$destsshusername@$destsship:$backupfolder0"
+	
+	
+	echo "----------------------------------------------------------------------------------------------"
+	mkdir -p "$mountDest"
+	sshfs -C $destsshusername@$destsship: "$mountDest"
+
+	tput setaf 3    # Yellow
+	ls "$mountDest"
+	tput sgr0       # Text reset
+	Ask "Mounted correctly?"  "yes" "no" 
+	if [ "$result" == "no" ]; then  
+		exit;
+	fi
+
+fi
+if [ "$result" == "External Harddrive" ]; then  
+	# ----  edit here -------------------------------------------------
+	backupfolder="/media/External/$backupfolder00"
+	# -----------------------------------------------------------------
+	
+	backupfolderMount="$backupfolder"
+fi
+
+
+
+thisbackupfolder="$backupfolder$mydate"
+#mkdir -p "$thisbackupfolder"
+
+
 
 cd ~ 
 
 
-Ask "Is this the first backup?"  "no" "yes" 
-if [ "$result" == "no" ]; then  
-	lastbackupfoldershort=`ls -1 --sort=version  "$backupfolder"| tail -1`
-	echo "last backup folder is $lastbackupfoldershort"
+
+
+
+lastbackupfoldershort=`ls -1 --sort=version  "$backupfolderMount"| tail -1`
+echoCOLOR "last backup folder is $lastbackupfoldershort"
+
+
+Ask "Is this the first backup? I found: $lastbackupfoldershort as the last backup folder. Correct?" "yes"  "no" 
+if [ "$result" == "yes" ]; then  
+	echo "great. Continue"
 else
-	echo "Please create manually an empty date folder in the backup dirrectory $backupfolder. Then start the script again with this empty folder as a reference."
+	echo "Please create manually an empty date folder in the backup directory. Then start the script again with this empty folder as a reference."
 	exit;
 fi
 
 
-thisbackupfolder="$backupfolder`date -I`"
-#mkdir "$thisbackupfolder"
 
 for folder in "${backupfolderlist[@]}"; do
-	bash ~/Skripte/incrementalBackupFromTo -s -f "$folder" -t "$thisbackupfolder/" -l "../$lastbackupfoldershort" 
+	echoCOLOR "----------------------------------------------------------------------"
+	echoCOLOR "Starting: $folder" 
+	bash incrementalBackupFromTo -s -f "$mountSrc$folder" -t "$thisbackupfolder/" -l "../$lastbackupfoldershort" 
 
-	echo "----------------------------------------------------------------------"
-	echo "$folder done"
+	echo "$folder done,  `date +%F\ %T`" >> "$backupfolderMount$mydate/log.txt"
+	echoCOLOR "Done: $folder"
 done
 
 
-  
+
+
+
+
+

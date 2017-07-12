@@ -3,7 +3,7 @@
 
 
 
-. $HOME/Skripte/functions
+. functions
 
 
 echo "###########################"
