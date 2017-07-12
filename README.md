@@ -21,6 +21,6 @@ Converts all videos from a directory (recursively) with ffmpeg to arbitrary form
 * Works for Audio (mp3, ogg,...) and Video (avi, mp4, mkv,...)
 * Comparison of filesizes before & after and warning if no reduction was achieved
 * Naming conventions and ffmpeg details can be changed with parameters (or in the script)
-* creates log file (with size difference and code to delete old files in one go)
+* creates log file (with size difference and code to move old files to the trash)
 
 ![](screenshot-convert.jpg)
